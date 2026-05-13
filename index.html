@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Diet Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0c09;
+    --card: #1a1712;
+    --card2: #221f1a;
+    --accent: #e8a838;
+    --accent2: #d47c2a;
+    --text: #f0e8d8;
+    --muted: #8a7d68;
+    --green: #5a9a4a;
+    --red: #c0392b;
+    --blue: #3498db;
+    --border: #2e2a22;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #1a1209 0%, #2a1f0e 50%, #1a1209 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 28px 20px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(232,168,56,0.12) 0%, transparent 70%);
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    color: var(--accent);
+    letter-spacing: 1px;
+    position: relative;
+  }
+  .header p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 6px;
+    position: relative;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+  .stat-pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-cal { background: var(--accent); }
+  .dot-pro { background: var(--green); }
+  .dot-car { background: var(--blue); }
+  .dot-fat { background: #e67e22; }
+
+  /* TABS */
+  .tabs-wrap {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    background: var(--card);
+    border-bottom: 2px solid var(--border);
+    padding: 0 10px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs-wrap::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 14px 16px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+  }
+  .tab-btn:hover { color: var(--accent); }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* SECTION TOGGLE */
+  .section-toggle {
+    display: flex;
+    gap: 8px;
+    padding: 14px 16px;
+    background: var(--card2);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .toggle-btn {
+    padding: 8px 18px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.83rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .toggle-btn.active {
+    background: var(--accent);
+    color: #0e0c09;
+    border-color: var(--accent);
+  }
+
+  /* MAIN CONTENT */
+  .main { max-width: 900px; margin: 0 auto; padding: 16px; }
+
+  /* SECTION */
+  .section { display: none; animation: fadeIn 0.3s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* MEAL CARD */
+  .meal-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .meal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    background: var(--card2);
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+  .meal-header:hover { background: #2a2520; }
+  .meal-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(232,168,56,0.12);
+    border: 1px solid rgba(232,168,56,0.25);
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .meal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    color: var(--text);
+    flex: 1;
+  }
+  .meal-cals {
+    font-size: 0.78rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .chevron {
+    font-size: 0.75rem;
+    color: var(--muted);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .meal-card.open .chevron { transform: rotate(180deg); }
+
+  .meal-body { display: none; padding: 18px; }
+  .meal-card.open .meal-body { display: block; }
+
+  .dish-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+
+  .how-to-make {
+    background: rgba(232,168,56,0.06);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+  }
+  .how-to-make h4 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .how-to-make ol {
+    padding-left: 18px;
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: #c8b898;
+  }
+
+  /* MACROS ROW */
+  .macros-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .macro-box {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .macro-box .val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .macro-box .lbl { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+  .cal-val { color: var(--accent); }
+  .pro-val { color: var(--green); }
+  .car-val { color: var(--blue); }
+  .fat-val { color: #e67e22; }
+
+  /* INGREDIENTS SECTION */
+  .ingr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  @media (max-width: 480px) { .ingr-grid { grid-template-columns: 1fr; } }
+
+  .ingr-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .ingr-meal-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 10px 14px;
+    background: var(--card2);
+    border-bottom: 1px solid var(--border);
+  }
+  .ingr-list {
+    padding: 10px 14px;
+    list-style: none;
+  }
+  .ingr-list li {
+    font-size: 0.82rem;
+    color: #c0b09a;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+  .ingr-list li:last-child { border-bottom: none; }
+  .ingr-list li::before { content: '•'; color: var(--accent); flex-shrink: 0; }
+
+  .blinkit-link {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #7ebe4e;
+    background: rgba(126, 190, 78, 0.1);
+    border: 1px solid rgba(126, 190, 78, 0.28);
+    border-radius: 4px;
+    padding: 2px 6px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  .blinkit-link:hover {
+    background: rgba(126, 190, 78, 0.22);
+    color: #a0d870;
+  }
+
+  /* DAILY MACROS TABLE */
+  .macro-table-wrap { overflow-x: auto; margin-top: 16px; border-radius: 10px; border: 1px solid var(--border); }
+  .macro-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .macro-table th {
+    background: var(--card2);
+    padding: 12px 14px;
+    text-align: left;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .macro-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: #c8b898;
+    white-space: nowrap;
+  }
+  .macro-table tr:last-child td { border-bottom: none; }
+  .macro-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .macro-table .total-row td {
+    font-weight: 700;
+    color: var(--text);
+    background: rgba(232,168,56,0.08);
+    border-top: 1px solid var(--accent);
+  }
+  .macro-table .meal-name { color: var(--text); font-weight: 500; }
+
+  /* NOTICE */
+  .notice {
+    background: rgba(90,154,74,0.1);
+    border: 1px solid rgba(90,154,74,0.3);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.83rem;
+    color: #a8d898;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .macros-row { grid-template-columns: repeat(2, 1fr); }
+    .meal-title { font-size: 0.95rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>My Diet Plan</h1>
+  <p>Fat Loss • Muscle Retention • ~2200 kcal/day • 190–200g Protein</p>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-pill"><span class="dot dot-cal"></span> ~2350 kcal/day</div>
+  <div class="stat-pill"><span class="dot dot-pro"></span> 190–200g Protein</div>
+  <div class="stat-pill"><span class="dot dot-car"></span> ~250g Carbs</div>
+  <div class="stat-pill"><span class="dot dot-fat"></span> ~80g Fat</div>
+</div>
+
+<div class="tabs-wrap" id="dayTabs">
+  <button class="tab-btn active" onclick="selectDay(0)">Mon</button>
+  <button class="tab-btn" onclick="selectDay(1)">Tue</button>
+  <button class="tab-btn" onclick="selectDay(2)">Wed</button>
+  <button class="tab-btn" onclick="selectDay(3)">Thu</button>
+  <button class="tab-btn" onclick="selectDay(4)">Fri</button>
+  <button class="tab-btn" onclick="selectDay(5)">Sat</button>
+  <button class="tab-btn" onclick="selectDay(6)">Sun</button>
+</div>
+
+<div class="section-toggle">
+  <button class="toggle-btn active" onclick="showSection('timetable')">📅 Timetable & Recipes</button>
+  <button class="toggle-btn" onclick="showSection('ingredients')">🛒 Ingredients Needed</button>
+  <button class="toggle-btn" onclick="showSection('macros')">📊 Daily Macros</button>
+</div>
+
+<div class="main" id="mainContent"></div>
+
+<script>
+
+const days = [
+  {
+    name: "Monday",
+    meals: [
+      {
+        time: "7:30 AM",
+        label: "Meal 1 – Breakfast",
+        dish: "Chicken Quesadilla",
+        desc: "A crisp, filling wrap with chicken, cheese, and veggies. Uses everyday Indian grocery ingredients.",
+        steps: [
+          "Pat the chicken dry, then season it with salt, pepper, Kashmiri red chilli powder, and garlic powder.",
+          "Heat a pan and cook the chicken until fully done, then slice it into small pieces.",
+          "Warm the tortillas lightly so they do not crack when folded.",
+          "Place one tortilla on the pan, add chicken, onion, capsicum, and cheese, then cover with the second tortilla.",
+          "Toast both sides on low-to-medium heat until golden and the cheese melts, then slice and serve with curd."
+        ],
+        ingredients: ["200g chicken breast", "2 whole wheat rotis or wraps", "30g cheese", "1 small onion", "1 capsicum", "50g curd", "Kashmiri red chilli powder", "Garlic powder", "Salt", "Pepper"],
+        kcal: 430,
+        protein: 38,
+        carbs: 34,
+        fat: 15,
+        priceLow: 110,
+        priceHigh: 150
+      },
+      {
+        time: "10:30 AM",
+        label: "Meal 2 – Mid-Morning",
+        dish: "Boiled Eggs + Roasted Chana",
+        desc: "Simple, cheap, and easy to carry. Eggs handle the protein while roasted chana adds crunch.",
+        steps: [
+          "Place the eggs in a pan, cover with water, and boil until firm.",
+          "Cool them in water, peel carefully, and season with a little salt and pepper.",
+          "Measure out the roasted chana into a bowl so it is ready to eat.",
+          "Mix in a pinch of chaat masala if you like a stronger street-style taste.",
+          "Pack both together and eat as a simple filling snack."
+        ],
+        ingredients: ["4 whole eggs", "40g roasted chana", "Black pepper", "Chaat masala"],
+        kcal: 320,
+        protein: 28,
+        carbs: 18,
+        fat: 16,
+        priceLow: 30,
+        priceHigh: 45
+      },
+      {
+        time: "1:00 PM",
+        label: "Meal 3 – Lunch",
+        dish: "Teriyaki Chicken Rice Bowl",
+        desc: "A sweet-salty chicken bowl made with ingredients that are easy to find in India.",
+        steps: [
+          "Wash the rice and cook it until soft and fluffy, then keep it warm.",
+          "Cook the chicken in a pan with ginger and garlic until the outside turns lightly golden.",
+          "Add soy sauce and honey, then stir so the chicken gets coated in a shiny glaze.",
+          "Steam or sauté the broccoli separately so it stays bright and slightly crisp.",
+          "Assemble the bowl with rice at the base, chicken on top, broccoli on the side, and finish with sesame seeds."
+        ],
+        ingredients: ["200g chicken breast", "60g rice (dry)", "Soy sauce", "Honey", "Garlic", "Ginger", "Broccoli", "Sesame seeds"],
+        kcal: 500,
+        protein: 42,
+        carbs: 56,
+        fat: 14,
+        priceLow: 120,
+        priceHigh: 170
+      },
+      {
+        time: "4:00 PM",
+        label: "Meal 4 – Evening Snack",
+        dish: "Whey Curd Shake",
+        desc: "Cold and creamy, with simple ingredients from any Indian supermarket.",
+        steps: [
+          "Add curd, whey, banana, and ice into a blender.",
+          "Blend until the texture becomes smooth and thick.",
+          "Taste it and add a little cinnamon if you want extra flavour.",
+          "Pour into a tall glass and drink immediately while cold.",
+          "If it is too thick, add a small splash of water and blend again."
+        ],
+        ingredients: ["1 scoop whey protein", "200g curd", "1 banana", "Ice", "Cinnamon"],
+        kcal: 240,
+        protein: 28,
+        carbs: 22,
+        fat: 5,
+        priceLow: 55,
+        priceHigh: 85
+      },
+      {
+        time: "7:00 PM",
+        label: "Meal 5 – Dinner",
+        dish: "Chicken White Sauce Pasta",
+        desc: "A lighter white sauce pasta with chicken, mushrooms, and basic pantry ingredients.",
+        steps: [
+          "Boil the pasta in salted water until just cooked, then drain it.",
+          "Cook the chicken and mushrooms together in a pan until the moisture reduces.",
+          "Add garlic, milk, cornflour slurry, and cheese to form a light white sauce.",
+          "Toss the pasta into the sauce and mix until every piece is coated.",
+          "Finish with black pepper and serve hot while the sauce is creamy."
+        ],
+        ingredients: ["180g chicken breast", "90g whole wheat pasta", "200ml low-fat milk", "20g cheese", "Garlic", "Mushrooms", "Cornflour", "Black pepper"],
+        kcal: 470,
+        protein: 38,
+        carbs: 48,
+        fat: 14,
+        priceLow: 110,
+        priceHigh: 160
+      },
+      {
+        time: "9:30 PM",
+        label: "Meal 6 – Pre-Sleep",
+        dish: "Milk + Peanut Butter + Almonds",
+        desc: "A simple slow-digesting pre-sleep combo with easy-to-buy ingredients.",
+        steps: [
+          "Warm the milk gently so it stays comfortable to drink but does not boil heavily.",
+          "Stir in the peanut butter until it dissolves into the milk.",
+          "Keep the almonds on the side or crush them lightly and add them on top.",
+          "Add a pinch of cinnamon if you want a warmer flavour.",
+          "Drink the milk slowly and eat the almonds separately before sleep."
+        ],
+        ingredients: ["300ml low-fat milk", "1 tbsp natural peanut butter", "8 almonds", "Cinnamon"],
+        kcal: 260,
+        protein: 26,
+        carbs: 16,
+        fat: 12,
+        priceLow: 35,
+        priceHigh: 55
+      }
+    ]
+  },
+  {
+    name: "Tuesday",
+    meals: [
+      {
+        time: "7:30 AM",
+        label: "Meal 1 – Breakfast",
+        dish: "Oats Protein Pancakes",
+        desc: "Soft pancakes made from oats, eggs, banana, and whey.",
+        steps: [
+          "Blend oats, eggs, whey, banana, and cinnamon into a smooth batter.",
+          "Let the batter sit for a minute so the oats absorb some liquid.",
+          "Heat a non-stick pan and pour small rounds of batter onto it.",
+          "Cook until bubbles appear, then flip and finish the other side gently.",
+          "Stack the pancakes and eat them warm while they are soft."
+        ],
+        ingredients: ["60g oats", "2 whole eggs", "1 scoop whey protein", "1 banana", "Baking powder", "Cinnamon"],
+        kcal: 340,
+        protein: 32,
+        carbs: 38,
+        fat: 12,
+        priceLow: 45,
+        priceHigh: 70
+      },
+      {
+        time: "10:30 AM",
+        label: "Meal 2 – Mid-Morning",
+        dish: "Hung Curd + Seeds",
+        desc: "Thick curd with flaxseed for protein, fibre, and a little healthy fat.",
+        steps: [
+          "Place regular curd in a cloth or sieve and let the extra water drain out.",
+          "Measure the thick curd into a bowl once it becomes dense.",
+          "Mix in flaxseed powder and a little cucumber for freshness.",
+          "Add jeera powder and a pinch of salt for a savoury taste.",
+          "Eat it cold straight from the bowl."
+        ],
+        ingredients: ["250g hung curd", "1 tbsp flaxseed powder", "Cucumber", "Jeera powder"],
+        kcal: 220,
+        protein: 23,
+        carbs: 16,
+        fat: 8,
+        priceLow: 20,
+        priceHigh: 35
+      },
+      {
+        time: "1:00 PM",
+        label: "Meal 3 – Lunch",
+        dish: "Grilled Chicken Pulao Bowl",
+        desc: "Chicken and rice with easy Indian spices and vegetables.",
+        steps: [
+          "Cook the rice separately and keep it fluffy.",
+          "Season the chicken with ginger, garlic, and spices, then grill or pan-cook it.",
+          "Cook the onions, peas, and carrot lightly so they stay soft but not mushy.",
+          "Mix the cooked vegetables into the rice if you want a more fragrant bowl.",
+          "Top with the chicken and serve hot."
+        ],
+        ingredients: ["220g chicken breast", "70g rice (dry)", "Onion", "Ginger", "Garlic", "Peas", "Carrot", "Whole spices"],
+        kcal: 520,
+        protein: 44,
+        carbs: 58,
+        fat: 15,
+        priceLow: 120,
+        priceHigh: 165
+      },
+      {
+        time: "4:00 PM",
+        label: "Meal 4 – Evening Snack",
+        dish: "Chicken Wrap",
+        desc: "A quick wrap with salad and a light yogurt sauce.",
+        steps: [
+          "Cook or reheat the chicken and slice it into strips.",
+          "Prepare the salad ingredients so they stay crisp and fresh.",
+          "Spread curd or yogurt sauce on the wrap.",
+          "Add chicken, lettuce, tomato, and cucumber, then roll tightly.",
+          "Toast the wrap briefly on a pan if you want a better texture."
+        ],
+        ingredients: ["150g chicken breast", "1 whole wheat roti or wrap", "Lettuce", "Tomato", "Cucumber", "Curd", "Black pepper"],
+        kcal: 240,
+        protein: 24,
+        carbs: 22,
+        fat: 9,
+        priceLow: 50,
+        priceHigh: 75
+      },
+      {
+        time: "7:00 PM",
+        label: "Meal 5 – Dinner",
+        dish: "Spicy Chicken Rice Bowl",
+        desc: "A spicy chicken bowl with soy sauce, coriander leaves, and rice.",
+        steps: [
+          "Cook the rice first and keep it aside.",
+          "Heat a pan and cook chicken mince with garlic and chili until it breaks up evenly.",
+          "Add soy sauce and coriander leaves, then stir until the mixture becomes fragrant.",
+          "Push the chicken to the side and cook the egg if you want the extra protein on top.",
+          "Serve the chicken over rice and finish with more coriander leaves if available."
+        ],
+        ingredients: ["180g chicken mince", "60g rice (dry)", "Coriander leaves", "Soy sauce", "Garlic", "Chili", "Bell pepper", "1 egg"],
+        kcal: 500,
+        protein: 40,
+        carbs: 56,
+        fat: 15,
+        priceLow: 110,
+        priceHigh: 160
+      },
+      {
+        time: "9:30 PM",
+        label: "Meal 6 – Pre-Sleep",
+        dish: "Paneer Milk Bowl",
+        desc: "Paneer with warm milk and cinnamon for a slow-release protein finish.",
+        steps: [
+          "Warm the milk gently in a saucepan.",
+          "Add the paneer cubes and cardamom.",
+          "Let it sit for a minute so the paneer absorbs the milk flavour.",
+          "Serve in a bowl or mug.",
+          "Eat slowly before sleep."
+        ],
+        ingredients: ["150g paneer", "250ml low-fat milk", "Cinnamon", "Cardamom"],
+        kcal: 290,
+        protein: 30,
+        carbs: 18,
+        fat: 12,
+        priceLow: 55,
+        priceHigh: 85
+      }
+    ]
+  },
+  {
+    name: "Wednesday",
+    meals: [
+      {
+        time: "7:30 AM",
+        label: "Meal 1 – Breakfast",
+        dish: "Shakshuka with Roti",
+        desc: "Eggs poached in a spiced tomato sauce with simple Indian pantry ingredients.",
+        steps: [
+          "Cook onion and garlic first so the base becomes fragrant.",
+          "Add tomatoes and spices and let the mixture thicken into a sauce.",
+          "Make small wells in the sauce and crack the eggs into them.",
+          "Cover the pan and cook until the eggs are set to your liking.",
+          "Serve with warm rotis on the side."
+        ],
+        ingredients: ["4 whole eggs", "4 egg whites", "2 rotis", "Tomatoes", "Onion", "Garlic", "Kashmiri red chilli powder", "Salt"],
+        kcal: 360,
+        protein: 34,
+        carbs: 28,
+        fat: 16,
+        priceLow: 40,
+        priceHigh: 65
+      },
+      {
+        time: "10:30 AM",
+        label: "Meal 2 – Mid-Morning",
+        dish: "Boiled Eggs + Curd",
+        desc: "A basic snack that is cheap, fast, and easy to buy anywhere.",
+        steps: [
+          "Boil the eggs until the yolks are firm.",
+          "Cool, peel, and season them lightly.",
+          "Serve the curd in a separate bowl with a pinch of salt and pepper.",
+          "Eat the eggs with a spoon of curd for each bite if you like.",
+          "Keep it simple and chilled if the weather is hot."
+        ],
+        ingredients: ["3 whole eggs", "150g curd", "Black pepper", "Salt"],
+        kcal: 250,
+        protein: 25,
+        carbs: 16,
+        fat: 13,
+        priceLow: 20,
+        priceHigh: 35
+      },
+      {
+        time: "1:00 PM",
+        label: "Meal 3 – Lunch",
+        dish: "Fish Curry + Rice",
+        desc: "A simple fish curry with common Indian spices and rice.",
+        steps: [
+          "Cook the onion, tomato, ginger, and spices into a curry base.",
+          "Add the fish gently so the pieces stay intact.",
+          "Simmer on low heat until the fish is cooked through and the gravy thickens.",
+          "Cook the rice separately so it stays fluffy.",
+          "Serve the curry over rice with a squeeze of lemon."
+        ],
+        ingredients: ["220g rohu fish pieces", "60g rice (dry)", "Onion", "Tomato", "Ginger", "Turmeric", "Coriander powder", "Salt"],
+        kcal: 500,
+        protein: 44,
+        carbs: 58,
+        fat: 14,
+        priceLow: 110,
+        priceHigh: 170
+      },
+      {
+        time: "4:00 PM",
+        label: "Meal 4 – Evening Snack",
+        dish: "Chicken Wrap",
+        desc: "A clean wrap with grilled chicken and salad.",
+        steps: [
+          "Cook or reheat the chicken and slice it into strips.",
+          "Prepare the salad ingredients so they stay crisp and fresh.",
+          "Spread curd or yogurt sauce on the wrap.",
+          "Add chicken, lettuce, tomato, and cucumber, then roll tightly.",
+          "Toast the wrap briefly on a pan if you want a better texture."
+        ],
+        ingredients: ["150g chicken breast", "1 whole wheat roti or wrap", "Lettuce", "Tomato", "Cucumber", "Curd"],
+        kcal: 240,
+        protein: 24,
+        carbs: 22,
+        fat: 9,
+        priceLow: 50,
+        priceHigh: 75
+      },
+      {
+        time: "7:00 PM",
+        label: "Meal 5 – Dinner",
+        dish: "Chicken Keema Pasta",
+        desc: "Chicken mince with pasta and a tomato-based sauce.",
+        steps: [
+          "Cook the chicken mince in a pan until it is no longer pink.",
+          "Add onion, garlic, and tomato puree to create the sauce base.",
+          "Season well and let the mixture thicken before adding the pasta.",
+          "Fold in the cooked pasta and toss until every piece is coated.",
+          "Serve hot with a little black pepper on top."
+        ],
+        ingredients: ["190g chicken mince", "90g whole wheat pasta", "Onion", "Tomato puree", "Garlic", "Italian herbs", "Black pepper"],
+        kcal: 480,
+        protein: 40,
+        carbs: 52,
+        fat: 14,
+        priceLow: 105,
+        priceHigh: 155
+      },
+      {
+        time: "9:30 PM",
+        label: "Meal 6 – Pre-Sleep",
+        dish: "Curd + Paneer Bowl",
+        desc: "Slow-digesting protein before bed using common dairy ingredients.",
+        steps: [
+          "Cut the paneer into cubes or crumble it if you want a softer texture.",
+          "Mix the paneer with curd in a bowl.",
+          "Add cinnamon or cardamom for a mild sweet flavour.",
+          "Chill it briefly if you want it more refreshing.",
+          "Eat slowly as a light pre-sleep bowl."
+        ],
+        ingredients: ["120g paneer", "200g curd", "Cinnamon", "Cardamom"],
+        kcal: 270,
+        protein: 29,
+        carbs: 18,
+        fat: 12,
+        priceLow: 45,
+        priceHigh: 70
+      }
+    ]
+  },
+  {
+    name: "Thursday",
+    meals: [
+      {
+        time: "7:30 AM",
+        label: "Meal 1 – Breakfast",
+        dish: "Chicken Omelette Sandwich",
+        desc: "Eggs and chicken in sandwich form, using normal bread and simple seasoning.",
+        steps: [
+          "Cook the chicken first so it is ready to sandwich.",
+          "Beat the eggs and make a soft omelette with onion and tomato.",
+          "Toast the bread lightly so it stays firm when filled.",
+          "Assemble the chicken and omelette between the bread slices.",
+          "Press the sandwich briefly on a pan and cut in half before eating."
+        ],
+        ingredients: ["4 whole eggs", "120g chicken breast", "4 slices bread", "Onion", "Tomato", "Salt", "Pepper"],
+        kcal: 370,
+        protein: 35,
+        carbs: 30,
+        fat: 15,
+        priceLow: 55,
+        priceHigh: 85
+      },
+      {
+        time: "10:30 AM",
+        label: "Meal 2 – Mid-Morning",
+        dish: "Curd + Flaxseed Bowl",
+        desc: "A quick bowl for protein, fibre, and healthy fat.",
+        steps: [
+          "Stir the flaxseed powder into the curd until it is evenly mixed.",
+          "Add cucumber or jeera powder for a fresher taste.",
+          "Let it sit for a minute so the flaxseed softens slightly.",
+          "Eat it cold from a bowl.",
+          "If needed, add a pinch of salt to balance the flavour."
+        ],
+        ingredients: ["250g curd", "1 tbsp flaxseed powder", "Cucumber", "Jeera powder"],
+        kcal: 210,
+        protein: 23,
+        carbs: 16,
+        fat: 8,
+        priceLow: 15,
+        priceHigh: 30
+      },
+      {
+        time: "1:00 PM",
+        label: "Meal 3 – Lunch",
+        dish: "Chicken Burrito Bowl",
+        desc: "A rice-and-chicken bowl with beans, corn, and curd sauce.",
+        steps: [
+          "Cook the chicken with chili, cumin, and other fajita-style spices.",
+          "Prepare the rice and keep the beans ready.",
+          "Chop the vegetables so the bowl has crunch and freshness.",
+          "Layer rice, beans, and vegetables first, then place the chicken on top.",
+          "Finish with curd or yogurt sauce and mix before eating."
+        ],
+        ingredients: ["220g chicken breast", "60g rice (dry)", "Boiled rajma or kabuli chana", "Corn", "Onion", "Tomato", "Curd", "Chili powder"],
+        kcal: 520,
+        protein: 44,
+        carbs: 58,
+        fat: 15,
+        priceLow: 120,
+        priceHigh: 170
+      },
+      {
+        time: "4:00 PM",
+        label: "Meal 4 – Evening Snack",
+        dish: "Sprouts + Eggs",
+        desc: "A fresh snack with crunch and protein.",
+        steps: [
+          "Boil the eggs and keep them aside.",
+          "Mix the sprouts with onion, tomato, lemon, and a little salt.",
+          "Add roasted peanuts for a crunchier bite.",
+          "Peel and halve the eggs just before serving.",
+          "Serve the eggs next to the sprouts so the textures stay separate."
+        ],
+        ingredients: ["2 whole eggs", "100g moong sprouts", "1 small onion", "Tomato", "Lemon", "Roasted peanuts"],
+        kcal: 240,
+        protein: 24,
+        carbs: 18,
+        fat: 10,
+        priceLow: 20,
+        priceHigh: 35
+      },
+      {
+        time: "7:00 PM",
+        label: "Meal 5 – Dinner",
+        dish: "Garlic Herb Fish + Potatoes",
+        desc: "Rohu fish pieces with potatoes and broccoli, using basic Indian-friendly ingredients.",
+        steps: [
+          "Cook or pan-sear the fish with garlic, pepper, and herbs.",
+          "Boil or pan-cook the potatoes until soft.",
+          "Mash or lightly crush the potatoes with a small amount of butter.",
+          "Cook the broccoli separately so it stays bright and not overdone.",
+          "Serve all three together while the fish is still warm."
+        ],
+        ingredients: ["220g rohu fish pieces", "250g potatoes", "Garlic", "Parsley", "Butter", "Broccoli", "Black pepper"],
+        kcal: 470,
+        protein: 40,
+        carbs: 50,
+        fat: 16,
+        priceLow: 95,
+        priceHigh: 150
+      },
+      {
+        time: "9:30 PM",
+        label: "Meal 6 – Pre-Sleep",
+        dish: "Milk + Paneer Cubes",
+        desc: "Simple slow-digesting protein before bed.",
+        steps: [
+          "Warm the milk gently and keep it aside.",
+          "Cut the paneer into bite-size cubes.",
+          "Add cardamom or cinnamon to the milk if you want flavour.",
+          "Eat the paneer slowly while sipping the milk.",
+          "Keep the bowl simple so it stays easy on the stomach before bed."
+        ],
+        ingredients: ["250ml low-fat milk", "100g paneer", "Cardamom", "Cinnamon"],
+        kcal: 290,
+        protein: 30,
+        carbs: 18,
+        fat: 12,
+        priceLow: 50,
+        priceHigh: 75
+      }
+    ]
+  },
+  {
+    name: "Friday",
+    meals: [
+      {
+        time: "7:30 AM",
+        label: "Meal 1 – Breakfast",
+        dish: "Breakfast Burrito",
+        desc: "Eggs, cheese, and salsa wrapped in a tortilla.",
+        steps: [
+          "Scramble the eggs and egg whites together in a pan.",
+          "Warm the wrap so it folds easily.",
+          "Add eggs, cheese, and salsa to the center of the wrap.",
+          "Fold the sides in and roll it up tightly.",
+          "Toast the burrito briefly so the outside gets a little crisp."
+        ],
+        ingredients: ["4 whole eggs", "4 egg whites", "1 whole wheat roti or wrap", "30g cheese", "Salsa", "Onion"],
+        kcal: 350,
+        protein: 33,
+        carbs: 32,
+        fat: 15,
+        priceLow: 45,
+        priceHigh: 70
+      },
+      {
+        time: "10:30 AM",
+        label: "Meal 2 – Mid-Morning",
+        dish: "Lassi + Whey",
+        desc: "A cold protein drink that is easy to drink and easy to digest.",
+        steps: [
+          "Blend curd, whey, and cold water until smooth.",
+          "Add jeera powder and black salt to give it a salty lassi taste.",
+          "Blend again for a few seconds so the seasoning mixes well.",
+          "Pour into a glass and chill if needed.",
+          "Drink it fresh for the best texture."
+        ],
+        ingredients: ["300g curd", "1 scoop whey protein", "Water", "Jeera powder", "Black salt"],
+        kcal: 210,
+        protein: 27,
+        carbs: 16,
+        fat: 5,
+        priceLow: 30,
+        priceHigh: 50
+      },
+      {
+        time: "1:00 PM",
+        label: "Meal 3 – Lunch",
+        dish: "Chicken Shawarma Rice Bowl",
+        desc: "A Middle Eastern-style chicken bowl with garlic curd sauce.",
+        steps: [
+          "Cook the chicken with shawarma-style spices such as cumin, Kashmiri red chilli powder, and garlic.",
+          "Prepare the rice and keep the salad ingredients crisp.",
+          "Mix curd, garlic, and lemon for a quick sauce.",
+          "Assemble the bowl with rice, chicken, lettuce, and pickles.",
+          "Drizzle the sauce on top and mix before eating."
+        ],
+        ingredients: ["220g chicken breast", "60g rice (dry)", "Curd", "Garlic", "Pickles", "Lettuce", "Lemon", "Cumin"],
+        kcal: 540,
+        protein: 46,
+        carbs: 60,
+        fat: 15,
+        priceLow: 120,
+        priceHigh: 170
+      },
+      {
+        time: "4:00 PM",
+        label: "Meal 4 – Evening Snack",
+        dish: "Egg + Curd Protein Cup",
+        desc: "A small, simple protein cup with eggs and curd.",
+        steps: [
+          "Boil the eggs and let them cool.",
+          "Mix curd with cucumber, salt, and pepper in a small bowl.",
+          "Slice or halve the eggs before serving.",
+          "Eat the curd first and then the eggs, or alternate bites.",
+          "Keep everything chilled for a fresher snack."
+        ],
+        ingredients: ["3 whole eggs", "150g curd", "Cucumber", "Black pepper", "Salt"],
+        kcal: 220,
+        protein: 25,
+        carbs: 8,
+        fat: 12,
+        priceLow: 20,
+        priceHigh: 35
+      },
+      {
+        time: "7:00 PM",
+        label: "Meal 5 – Dinner",
+        dish: "Mushroom Chicken Pasta",
+        desc: "Creamy chicken pasta with mushrooms and garlic.",
+        steps: [
+          "Boil the pasta until tender, then drain it well.",
+          "Cook chicken and mushrooms together in a pan.",
+          "Add milk or a light cream sauce and let it thicken.",
+          "Toss in the pasta and mix until coated.",
+          "Top with black pepper and serve immediately."
+        ],
+        ingredients: ["180g chicken breast", "90g whole wheat pasta", "Mushrooms", "Low-fat milk", "Cheese", "Garlic", "Black pepper"],
+        kcal: 460,
+        protein: 38,
+        carbs: 48,
+        fat: 14,
+        priceLow: 105,
+        priceHigh: 155
+      },
+      {
+        time: "9:30 PM",
+        label: "Meal 6 – Pre-Sleep",
+        dish: "Peanut Butter Milk",
+        desc: "Warm milk with peanut butter for slow overnight energy.",
+        steps: [
+          "Warm the milk until it is just hot enough to drink comfortably.",
+          "Stir in the peanut butter until it dissolves well.",
+          "Blend lightly if you want a smoother texture.",
+          "Taste and adjust sweetness only if needed.",
+          "Drink it slowly before bed."
+        ],
+        ingredients: ["300ml low-fat milk", "1 tbsp natural peanut butter", "Cocoa powder", "Almond slices"],
+        kcal: 260,
+        protein: 26,
+        carbs: 16,
+        fat: 12,
+        priceLow: 30,
+        priceHigh: 50
+      }
+    ]
+  },
+  {
+    name: "Saturday",
+    meals: [
+      {
+        time: "7:30 AM",
+        label: "Meal 1 – Breakfast",
+        dish: "Smoked Chicken Toast & Eggs",
+        desc: "Toast with chicken and eggs for a strong breakfast.",
+        steps: [
+          "Cook the chicken first and season it lightly.",
+          "Toast the bread slices until they are golden.",
+          "Cook the eggs to your preferred doneness.",
+          "Assemble the chicken and eggs on the toast with spinach and mustard.",
+          "Serve hot while the toast still has crunch."
+        ],
+        ingredients: ["140g chicken breast", "2 whole eggs", "2 slices whole grain bread", "Spinach", "Mustard", "Pepper"],
+        kcal: 320,
+        protein: 31,
+        carbs: 28,
+        fat: 12,
+        priceLow: 50,
+        priceHigh: 75
+      },
+      {
+        time: "10:30 AM",
+        label: "Meal 2 – Mid-Morning",
+        dish: "Oats Pudding + Whey",
+        desc: "A thick chia pudding boosted with whey.",
+        steps: [
+          "Mix oats, milk, and whey together in a bowl or jar.",
+          "Stir well so the oats start soaking evenly.",
+          "Refrigerate for at least 20–30 minutes so the oats soften.",
+          "Stir once more before eating so the texture becomes even.",
+          "Serve cold with cinnamon on top."
+        ],
+        ingredients: ["60g oats", "1 scoop whey protein", "250ml low-fat milk", "Cinnamon"],
+        kcal: 230,
+        protein: 26,
+        carbs: 18,
+        fat: 10,
+        priceLow: 35,
+        priceHigh: 55
+      },
+      {
+        time: "1:00 PM",
+        label: "Meal 3 – Lunch",
+        dish: "Chicken Keema Wraps",
+        desc: "A fun wrap plate with spicy chicken mince.",
+        steps: [
+          "Cook the chicken mince with onion, chili, and spices until it becomes dry and flavourful.",
+          "Warm the tortillas so they bend without cracking.",
+          "Prepare the salad topping so it stays fresh and crisp.",
+          "Fill each tortilla with keema and salad.",
+          "Finish with curd or salsa and serve immediately."
+        ],
+        ingredients: ["220g chicken mince", "3 whole wheat rotis or wraps", "Lettuce", "Tomato", "Onion", "Curd", "Chili powder"],
+        kcal: 510,
+        protein: 45,
+        carbs: 50,
+        fat: 16,
+        priceLow: 110,
+        priceHigh: 155
+      },
+      {
+        time: "4:00 PM",
+        label: "Meal 4 – Evening Snack",
+        dish: "Curd with Roasted Oats",
+        desc: "A light snack with crunch and sweetness.",
+        steps: [
+          "Spoon curd into a bowl.",
+          "Add roasted oats and fruit on top.",
+          "Drizzle a little honey if you want sweetness.",
+          "Mix only lightly so the roasted oats stay slightly crunchy.",
+          "Eat right away before the oats soften too much."
+        ],
+        ingredients: ["250g curd", "30g roasted oats", "1 banana or berries", "1 tsp honey"],
+        kcal: 220,
+        protein: 24,
+        carbs: 20,
+        fat: 6,
+        priceLow: 25,
+        priceHigh: 45
+      },
+      {
+        time: "7:00 PM",
+        label: "Meal 5 – Dinner",
+        dish: "Fish Rice Bowl",
+        desc: "A simple rice bowl with fish, cucumber, and curd.",
+        steps: [
+          "Cook the fish with salt, pepper, and garlic.",
+          "Prepare the rice and cucumber salad.",
+          "Add curd on the side or as a light sauce.",
+          "Assemble the bowl with rice first and fish on top.",
+          "Serve with lemon for a fresher finish."
+        ],
+        ingredients: ["220g rohu fish pieces", "60g rice (dry)", "Cucumber", "Curd", "Garlic", "Black pepper"],
+        kcal: 500,
+        protein: 40,
+        carbs: 55,
+        fat: 16,
+        priceLow: 95,
+        priceHigh: 150
+      },
+      {
+        time: "9:30 PM",
+        label: "Meal 6 – Pre-Sleep",
+        dish: "Curd + Almonds",
+        desc: "Simple and soothing before bed.",
+        steps: [
+          "Spoon the curd into a bowl.",
+          "Add cinnamon for a mild flavour.",
+          "Keep the almonds whole or slice them lightly.",
+          "Eat the almonds with the curd or separately.",
+          "Keep the bowl chilled if you want it more refreshing."
+        ],
+        ingredients: ["250g curd", "15 almonds", "Cinnamon"],
+        kcal: 240,
+        protein: 30,
+        carbs: 15,
+        fat: 10,
+        priceLow: 25,
+        priceHigh: 40
+      }
+    ]
+  },
+  {
+    name: "Sunday",
+    meals: [
+      {
+        time: "7:30 AM",
+        label: "Meal 1 – Breakfast",
+        dish: "Spanish Tortilla + Curd",
+        desc: "A hearty potato and egg tortilla with a curd side.",
+        steps: [
+          "Cook the potatoes and onion slowly until soft and lightly golden.",
+          "Whisk the eggs in a bowl and season them.",
+          "Mix the cooked potato-onion filling into the eggs.",
+          "Pour the mixture into a pan and cook on low heat until set.",
+          "Flip carefully, finish the other side, and serve with curd."
+        ],
+        ingredients: ["4 whole eggs", "200g potatoes", "1 small onion", "150g curd", "Olive oil or any cooking oil", "Salt", "Pepper"],
+        kcal: 360,
+        protein: 34,
+        carbs: 28,
+        fat: 16,
+        priceLow: 35,
+        priceHigh: 55
+      },
+      {
+        time: "10:30 AM",
+        label: "Meal 2 – Mid-Morning",
+        dish: "Boiled Eggs + Chai",
+        desc: "A simple tea-time snack with protein from eggs.",
+        steps: [
+          "Boil the eggs and peel them after cooling.",
+          "Make chai with tea leaves, ginger, cardamom, and a little milk.",
+          "Keep the sugar low so the drink stays light.",
+          "Season the eggs with pepper or a tiny bit of salt.",
+          "Eat the eggs first, then sip the chai."
+        ],
+        ingredients: ["3 whole eggs", "100ml low-fat milk", "Tea leaves", "Ginger", "Cardamom", "Small amount of sugar"],
+        kcal: 220,
+        protein: 25,
+        carbs: 10,
+        fat: 14,
+        priceLow: 20,
+        priceHigh: 35
+      },
+      {
+        time: "1:00 PM",
+        label: "Meal 3 – Lunch",
+        dish: "Chicken Fajita Bowl",
+        desc: "Chicken with peppers, rice, and beans in a fajita-style bowl.",
+        steps: [
+          "Season the chicken with chili, cumin, and Kashmiri red chilli powder.",
+          "Cook the chicken until the edges are lightly browned.",
+          "Prepare the rice, beans, peppers, and onion separately.",
+          "Assemble everything into a bowl with curd or salsa on top.",
+          "Mix before eating so the flavours spread evenly."
+        ],
+        ingredients: ["220g chicken breast", "60g rice (dry)", "Boiled rajma or kabuli chana", "Bell peppers", "Onion", "Curd", "Lemon", "Chili powder"],
+        kcal: 520,
+        protein: 44,
+        carbs: 60,
+        fat: 15,
+        priceLow: 120,
+        priceHigh: 170
+      },
+      {
+        time: "4:00 PM",
+        label: "Meal 4 – Evening Snack",
+        dish: "Whey Shake + Banana",
+        desc: "Fast protein with a banana for energy.",
+        steps: [
+          "Shake whey with milk or water until fully dissolved.",
+          "Keep the banana ready to eat on the side.",
+          "Use ice if you want the shake colder and thicker.",
+          "Drink the shake first if you want faster digestion.",
+          "Eat the banana after or alongside it for extra carbs."
+        ],
+        ingredients: ["1 scoop whey protein", "250ml low-fat milk", "1 banana", "Ice"],
+        kcal: 230,
+        protein: 26,
+        carbs: 22,
+        fat: 5,
+        priceLow: 35,
+        priceHigh: 55
+      },
+      {
+        time: "7:00 PM",
+        label: "Meal 5 – Dinner",
+        dish: "Chicken Pasta",
+        desc: "Bright, garlicky pasta with chicken and spinach.",
+        steps: [
+          "Cook the pasta until just soft, then drain it.",
+          "Cook chicken with garlic and lemon in a pan.",
+          "Add spinach and let it wilt slightly.",
+          "Toss the pasta through the chicken mixture with a little cheese.",
+          "Serve hot with a simple side if desired."
+        ],
+        ingredients: ["180g chicken breast", "90g whole wheat pasta", "Garlic", "Lemon", "Spinach", "Cheese", "Olive oil"],
+        kcal: 460,
+        protein: 40,
+        carbs: 50,
+        fat: 14,
+        priceLow: 105,
+        priceHigh: 155
+      },
+      {
+        time: "9:30 PM",
+        label: "Meal 6 – Pre-Sleep",
+        dish: "Paneer Milk Bowl",
+        desc: "A slow-digesting protein bowl to finish the week.",
+        steps: [
+          "Warm the milk gently in a saucepan.",
+          "Add the paneer cubes and cardamom.",
+          "Let it sit for a minute so the paneer absorbs the milk flavour.",
+          "Serve in a bowl or mug.",
+          "Eat slowly before sleep."
+        ],
+        ingredients: ["120g paneer", "250ml low-fat milk", "Cardamom", "Cinnamon"],
+        kcal: 270,
+        protein: 28,
+        carbs: 18,
+        fat: 12,
+        priceLow: 45,
+        priceHigh: 70
+      }
+    ]
+  }
+];
+
+
+let currentDay = 0;
+let currentSection = 'timetable';
+
+function selectDay(idx) {
+  currentDay = idx;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  renderContent();
+}
+
+function showSection(sec) {
+  currentSection = sec;
+  document.querySelectorAll('.toggle-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes("'"+sec+"'"));
+  });
+  renderContent();
+}
+
+function toggleMeal(el) {
+  el.closest('.meal-card').classList.toggle('open');
+}
+
+
+function getIngredientPrice(ingredient) {
+  const lower = ingredient.toLowerCase();
+  const prices = {
+    "chicken breast": "₹60–₹85",
+    "chicken mince": "₹55–₹80",
+    "fish fillet": "₹70–₹120",
+    "salmon": "₹140–₹220",
+    "whole eggs": "₹18–₹28",
+    "egg whites": "₹10–₹18",
+    "curd": "₹12–₹25",
+    "hung curd": "₹20–₹35",
+    "paneer": "₹45–₹70",
+    "milk": "₹18–₹28",
+    "whole wheat pasta": "₹18–₹35",
+    "rice": "₹8–₹15",
+    "whole wheat roti or wrap": "₹10–₹18",
+    "bread": "₹8–₹18",
+    "whole grain bread": "₹10–₹20",
+    "cheese": "₹15–₹30",
+    "whey protein": "₹45–₹70",
+    "banana": "₹5–₹10",
+    "almonds": "₹10–₹20",
+    "broccoli": "₹20–₹40",
+    "capsicum": "₹10–₹20",
+    "mushrooms": "₹20–₹40",
+    "oats": "₹10–₹18",
+    "chia seeds": "₹12–₹20",
+    "granola": "₹15–₹25",
+    "flaxseed": "₹5–₹10",
+    "moong sprouts": "₹10–₹20",
+    "rajma": "₹10–₹18",
+    "black beans": "₹12–₹20",
+    "corn": "₹8–₹15",
+    "peanut butter": "₹10–₹18"
+  };
+
+  for (const key in prices) {
+    if (lower.includes(key)) {
+      return prices[key];
+    }
+  }
+  return "₹5–₹15";
+}
+
+
+function getBlinkitLink(ingredient) {
+  const lower = ingredient.toLowerCase();
+  // More specific keys must come before shorter overlapping keys
+  const links = {
+    "chicken breast":        "https://blinkit.com/s/?q=chicken+breast",
+    "chicken mince":         "https://blinkit.com/s/?q=chicken+mince",
+    "rohu fish":             "https://blinkit.com/s/?q=rohu+fish",
+    "egg whites":            "https://blinkit.com/s/?q=egg+whites",
+    "whole eggs":            "https://blinkit.com/s/?q=eggs",
+    "hung curd":             "https://blinkit.com/s/?q=hung+curd",
+    "low-fat milk":          "https://blinkit.com/s/?q=low+fat+milk",
+    "whole wheat pasta":     "https://blinkit.com/s/?q=whole+wheat+pasta",
+    "whole wheat roti":      "https://blinkit.com/s/?q=whole+wheat+roti",
+    "whole grain bread":     "https://blinkit.com/s/?q=whole+grain+bread",
+    "moong sprouts":         "https://blinkit.com/s/?q=moong+sprouts",
+    "roasted chana":         "https://blinkit.com/s/?q=roasted+chana",
+    "roasted peanuts":       "https://blinkit.com/s/?q=roasted+peanuts",
+    "kabuli chana":          "https://blinkit.com/s/?q=kabuli+chana",
+    "peanut butter":         "https://blinkit.com/s/?q=peanut+butter",
+    "soy sauce":             "https://blinkit.com/s/?q=soy+sauce",
+    "sesame seeds":          "https://blinkit.com/s/?q=sesame+seeds",
+    "flaxseed":              "https://blinkit.com/s/?q=flaxseed",
+    "coriander powder":      "https://blinkit.com/s/?q=coriander+powder",
+    "coriander leaves":      "https://blinkit.com/s/?q=coriander+leaves",
+    "kashmiri red chilli":   "https://blinkit.com/s/?q=kashmiri+red+chilli+powder",
+    "garlic powder":         "https://blinkit.com/s/?q=garlic+powder",
+    "chaat masala":          "https://blinkit.com/s/?q=chaat+masala",
+    "jeera powder":          "https://blinkit.com/s/?q=jeera+powder",
+    "black pepper":          "https://blinkit.com/s/?q=black+pepper",
+    "black salt":            "https://blinkit.com/s/?q=black+salt",
+    "chili powder":          "https://blinkit.com/s/?q=chili+powder",
+    "italian herbs":         "https://blinkit.com/s/?q=italian+herbs",
+    "baking powder":         "https://blinkit.com/s/?q=baking+powder",
+    "tomato puree":          "https://blinkit.com/s/?q=tomato+puree",
+    "bell pepper":           "https://blinkit.com/s/?q=bell+pepper",
+    "olive oil":             "https://blinkit.com/s/?q=olive+oil",
+    "cooking oil":           "https://blinkit.com/s/?q=cooking+oil",
+    "cocoa powder":          "https://blinkit.com/s/?q=cocoa+powder",
+    "tea leaves":            "https://blinkit.com/s/?q=tea+leaves",
+    "whole spices":          "https://blinkit.com/s/?q=whole+spices",
+    "whey protein":          "https://blinkit.com/s/?q=whey+protein",
+    "chicken":               "https://blinkit.com/s/?q=chicken",
+    "fish":                  "https://blinkit.com/s/?q=fish",
+    "egg":                   "https://blinkit.com/s/?q=eggs",
+    "curd":                  "https://blinkit.com/s/?q=curd",
+    "paneer":                "https://blinkit.com/s/?q=paneer",
+    "milk":                  "https://blinkit.com/s/?q=milk",
+    "pasta":                 "https://blinkit.com/s/?q=pasta",
+    "roti":                  "https://blinkit.com/s/?q=whole+wheat+roti",
+    "wrap":                  "https://blinkit.com/s/?q=tortilla+wrap",
+    "bread":                 "https://blinkit.com/s/?q=bread",
+    "cheese":                "https://blinkit.com/s/?q=cheese",
+    "banana":                "https://blinkit.com/s/?q=banana",
+    "almond":                "https://blinkit.com/s/?q=almonds",
+    "broccoli":              "https://blinkit.com/s/?q=broccoli",
+    "capsicum":              "https://blinkit.com/s/?q=capsicum",
+    "mushroom":              "https://blinkit.com/s/?q=mushrooms",
+    "oats":                  "https://blinkit.com/s/?q=oats",
+    "rajma":                 "https://blinkit.com/s/?q=rajma",
+    "corn":                  "https://blinkit.com/s/?q=sweet+corn",
+    "honey":                 "https://blinkit.com/s/?q=honey",
+    "garlic":                "https://blinkit.com/s/?q=garlic",
+    "ginger":                "https://blinkit.com/s/?q=ginger",
+    "cinnamon":              "https://blinkit.com/s/?q=cinnamon",
+    "cardamom":              "https://blinkit.com/s/?q=cardamom",
+    "cornflour":             "https://blinkit.com/s/?q=cornflour",
+    "onion":                 "https://blinkit.com/s/?q=onion",
+    "tomato":                "https://blinkit.com/s/?q=tomato",
+    "cucumber":              "https://blinkit.com/s/?q=cucumber",
+    "lettuce":               "https://blinkit.com/s/?q=lettuce",
+    "spinach":               "https://blinkit.com/s/?q=spinach",
+    "peas":                  "https://blinkit.com/s/?q=green+peas",
+    "carrot":                "https://blinkit.com/s/?q=carrot",
+    "potato":                "https://blinkit.com/s/?q=potato",
+    "lemon":                 "https://blinkit.com/s/?q=lemon",
+    "turmeric":              "https://blinkit.com/s/?q=turmeric",
+    "cumin":                 "https://blinkit.com/s/?q=cumin",
+    "butter":                "https://blinkit.com/s/?q=butter",
+    "salsa":                 "https://blinkit.com/s/?q=salsa",
+    "pickle":                "https://blinkit.com/s/?q=pickle",
+    "parsley":               "https://blinkit.com/s/?q=parsley",
+    "mustard":               "https://blinkit.com/s/?q=mustard",
+    "chili":                 "https://blinkit.com/s/?q=green+chili",
+    "sugar":                 "https://blinkit.com/s/?q=sugar",
+    "pepper":                "https://blinkit.com/s/?q=black+pepper",
+    "salt":                  "https://blinkit.com/s/?q=salt",
+    "rice":                  "https://blinkit.com/s/?q=rice",
+  };
+  for (const key in links) {
+    if (lower.includes(key)) return links[key];
+  }
+  return null;
+}
+
+
+function renderContent() {
+  const day = days[currentDay];
+  const container = document.getElementById('mainContent');
+
+  if (currentSection === 'timetable') {
+    let html = `<div class="notice">💡 Aim for <strong>8,000–12,000 steps daily</strong>. Drink 3–4 litres of water. Train 3–4x per week — even 30 mins of lifting beats 1 hour of only cardio.</div>`;
+    day.meals.forEach((meal, i) => {
+      html += `
+      <div class="meal-card" id="mc${i}">
+        <div class="meal-header" onclick="toggleMeal(this)">
+          <span class="meal-badge">${meal.time}</span>
+          <span class="meal-title">${meal.dish}</span>
+          <span class="meal-cals">${meal.kcal} kcal · ₹${meal.priceLow}–₹${meal.priceHigh}</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="meal-body">
+          <div class="meal-badge" style="display:inline-block;margin-bottom:10px;">${meal.label}</div>
+          <p class="dish-desc">${meal.desc}</p>
+          <div class="how-to-make">
+            <h4>How to Make</h4>
+            <ol>${meal.steps.map(s => `<li>${s}</li>`).join('')}</ol>
+          </div>
+          <div class="macros-row">
+            <div class="macro-box"><div class="val cal-val">${meal.kcal}</div><div class="lbl">Calories</div></div>
+            <div class="macro-box"><div class="val pro-val">${meal.protein}g</div><div class="lbl">Protein</div></div>
+            <div class="macro-box"><div class="val car-val">${meal.carbs}g</div><div class="lbl">Carbs</div></div>
+            <div class="macro-box"><div class="val fat-val">${meal.fat}g</div><div class="lbl">Fat</div></div>
+          </div>
+        </div>
+      </div>`;
+    });
+    container.innerHTML = html;
+
+  } else if (currentSection === 'ingredients') {
+    let html = `<div class="notice">🛒 Below are all ingredients you'll need for each meal today. Click <strong>Blinkit ↗</strong> on any item to order it instantly. Shop the full list at the start of the day or week.</div>`;
+    html += `<div class="ingr-grid">`;
+    day.meals.forEach(meal => {
+      html += `
+      <div class="ingr-card">
+        <div class="ingr-meal-title">${meal.time} — ${meal.dish}</div>
+          <div style="padding:8px 14px 0;font-size:0.78rem;color:var(--muted);">Approx. price: ₹${meal.priceLow}–₹${meal.priceHigh}</div>
+        <ul class="ingr-list">
+          ${meal.ingredients.map(ing => {
+            const blinkitUrl = getBlinkitLink(ing);
+            const blinkitBadge = blinkitUrl
+              ? `<a href="${blinkitUrl}" target="_blank" rel="noopener noreferrer" class="blinkit-link">Blinkit ↗</a>`
+              : '';
+            return `<li>${ing} <span style="margin-left:auto;color:var(--accent);font-size:0.75rem;">${getIngredientPrice(ing)}</span>${blinkitBadge}</li>`;
+          }).join('')}
+        </ul>
+      </div>`;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
+
+  } else {
+    // MACROS TABLE
+    let totalKcal = 0, totalPro = 0, totalCarbs = 0, totalFat = 0, totalPriceLow = 0, totalPriceHigh = 0;
+    let tableRows = day.meals.map(meal => {
+      totalKcal += meal.kcal;
+      totalPro += meal.protein;
+      totalCarbs += meal.carbs;
+      totalFat += meal.fat;
+      totalPriceLow += meal.priceLow;
+      totalPriceHigh += meal.priceHigh;
+      return `<tr>
+        <td class="meal-name">${meal.time}</td>
+        <td>${meal.dish}</td>
+        <td style="color:var(--accent);font-weight:600;">${meal.kcal}</td>
+        <td style="color:var(--green);font-weight:600;">${meal.protein}g</td>
+        <td style="color:var(--blue);font-weight:600;">${meal.carbs}g</td>
+        <td style="color:#e67e22;font-weight:600;">${meal.fat}g</td>
+        <td style="font-weight:600;color:var(--accent);">₹${meal.priceLow}–₹${meal.priceHigh}</td>
+      </tr>`;
+    }).join('');
+
+    let html = `
+    <div class="notice">📊 All macros for <strong>${day.name}</strong>. Target: ~2100 kcal, 190–200g protein, ~190–210g carbs, ~70–80g fat.</div>
+    <div class="macro-table-wrap">
+      <table class="macro-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Dish</th>
+            <th>Kcal</th>
+            <th>Protein</th>
+            <th>Carbs</th>
+            <th>Fat</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+          <tr class="total-row">
+            <td colspan="2">DAILY TOTAL</td>
+            <td>${totalKcal}</td>
+            <td>${totalPro}g</td>
+            <td>${totalCarbs}g</td>
+            <td>${totalFat}g</td>
+            <td>₹${totalPriceLow}–₹${totalPriceHigh}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+    container.innerHTML = html;
+  }
+}
+
+renderContent();
+</script>
+
+<div style="max-width:900px;margin:24px auto 32px;padding:0 16px;">
+  <div style="background:#1a1712;border:1px solid #2e2a22;border-radius:14px;padding:14px 16px;text-align:center;color:#f0e8d8;">
+    <div style="font-weight:700;letter-spacing:0.3px;margin-bottom:6px;">By Sadeni Pranav Tej</div>
+    <div style="font-size:0.9rem;color:#8a7d68;line-height:1.7;">
+      Phone: +91 7675834888 · Email: pranavsadeni7@gmail.com
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
